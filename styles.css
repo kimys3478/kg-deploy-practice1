@@ -274,6 +274,20 @@ img.missing { visibility: hidden; }
   background: rgba(255, 255, 255, .6);
 }
 .folder.active .folder-name { background: #2e7cf6; color: #fff; }
+/* hover hint: 폴더를 누르면 세부 업무를 알 수 있어요 */
+.folder[data-hint]::after {
+  content: attr(data-hint);
+  position: absolute; right: calc(100% + 6px); top: 18px;
+  width: max-content; max-width: 180px;
+  padding: 6px 10px; border-radius: 8px;
+  background: rgba(30, 30, 30, .88); color: #fff;
+  font-size: 12px; font-weight: 500; line-height: 1.4; text-align: left;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .18);
+  opacity: 0; transform: translateX(4px); pointer-events: none;
+  transition: opacity .15s, transform .15s;
+}
+.folder:hover::after, .folder:focus-visible::after { opacity: 1; transform: none; transition-delay: .25s; }
+.folder.dragging::after, .folder.active::after { opacity: 0 !important; }
 
 /* tools */
 .w-tools { padding: 12px; }
@@ -287,6 +301,7 @@ img.missing { visibility: hidden; }
   transition: transform .15s;
 }
 .tool:hover { transform: translateY(-2px); }
+a.tool { cursor: pointer; }
 .tool svg { width: 58%; height: 58%; }
 .tool .tool-letter { font-size: 18px; font-weight: 800; line-height: 1; }
 .tool[data-tip]::after, .dock-item[data-tip]::after {
@@ -578,6 +593,25 @@ img.missing { visibility: hidden; }
 .note b { display: block; font-size: 15px; font-weight: 700; line-height: 1.35; color: rgba(0, 0, 0, .85); }
 .note li span { display: block; margin-top: 2px; font-size: 14px; line-height: 1.45; color: var(--ink-55); }
 
+/* works stack: songs / lab / AI MAP live inside the sticky folders */
+.pillar .songs-head { margin-bottom: 24px; }
+.pillar .song-grid { gap: 24px 20px; }
+.lab-in { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.aimap-title { max-width: none !important; }
+.aimap-desc { max-width: 560px; font-size: 15px; line-height: 1.7; color: var(--ink-60); }
+.aimap-grid { margin-top: 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.aimap-col { padding: 22px 24px; border-radius: 16px; background: rgba(255, 255, 255, .75); border: 1px solid rgba(0, 0, 0, .06); box-shadow: 0 1px 2px rgba(0, 0, 0, .04); }
+.aimap-k { display: flex; align-items: center; gap: 8px; font-size: 16px; font-weight: 800; }
+.aimap-k::before { content: ""; width: 10px; height: 10px; border-radius: 50%; }
+.is-ai .aimap-k::before { background: linear-gradient(180deg, #b57bee, #8746d6); }
+.is-human .aimap-k::before { background: linear-gradient(180deg, #ffd15a, #f2a516); }
+.aimap-role { margin: 4px 0 14px; font-size: 13px; color: var(--ink-50); }
+.aimap-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.aimap-list li { display: flex; gap: 12px; align-items: baseline; }
+.aimap-list li > b { flex: none; font-size: 11px; font-weight: 700; color: var(--ink-35); }
+.am-t { font-size: 14px; font-weight: 700; line-height: 1.4; }
+.am-d { margin-top: 1px; font-size: 13px; line-height: 1.45; color: var(--ink-55); }
+
 /* =========================================================
    SONGS grid
    ========================================================= */
@@ -843,7 +877,15 @@ img.missing { visibility: hidden; }
   background: #fffaf0; border: 1px solid #f5e3b3;
   font-size: 14px; line-height: 1.6;
 }
-.wb-draft { margin-top: 28px; font-size: 11px; color: var(--ink-35); }
+.wb-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.wb-steps li { display: flex; align-items: baseline; gap: 12px; padding: 10px 14px; border-radius: 10px; background: rgba(0, 0, 0, .035); font-size: 14px; line-height: 1.55; color: rgba(0, 0, 0, .78); }
+.wb-steps b { flex: none; font-size: 11px; font-weight: 700; color: var(--blue, #2e7cf6); }
+.wb-out li b { font-weight: 700; color: rgba(0, 0, 0, .85); }
+.wb-out li span { display: block; font-size: 13px; line-height: 1.5; color: var(--ink-50); }
+.wb-out li { margin-bottom: 6px; }
+.wb-good-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.wb-good-list li { position: relative; padding-left: 22px; }
+.wb-good-list li::before { content: "✓"; position: absolute; left: 2px; font-weight: 700; color: #c48a00; }
 
 /* =========================================================
    RESPONSIVE
@@ -904,6 +946,8 @@ img.missing { visibility: hidden; }
   .pillar-body { border-radius: 28px; }
   .pillar-inner { padding: 32px 20px; }
   .pillar-grid { grid-template-columns: 1fr; }
+  .aimap-grid { grid-template-columns: 1fr; }
+  .folder[data-hint]::after { display: none; }
   .pillar h2 { font-size: 24px; }
 
   .song-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 14px; }

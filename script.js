@@ -3,7 +3,7 @@
   const $$ = (s, el = document) => [...el.querySelectorAll(s)];
   const isMobile = () => matchMedia("(max-width: 767px)").matches;
   const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const { SITE, SONGS, PLAYER_SONGS, TOOLS, PEOPLE, FOLDERS, LYRIC_SONGS } = window;
+  const { SITE, SONGS, PLAYER_SONGS, TOOLS, PEOPLE, FOLDERS, LYRIC_SONGS, AI_MAP } = window;
   const isYouTube = (url) => /youtube\.com|youtu\.be/.test(url);
 
   /* ---------- generated images: soft placeholder until they exist ---------- */
@@ -201,7 +201,7 @@
     elevenlabs: `<svg viewBox="0 0 24 24"><rect x="7.5" y="4" width="3" height="16" rx="1" fill="#111"/><rect x="13.5" y="4" width="3" height="16" rx="1" fill="#111"/></svg>`,
   };
   $("#toolsGrid").innerHTML = TOOLS.map(
-    (t) => `<span class="tool t-${t.key}" data-tip="${t.name}" aria-label="${t.name}">${TOOL_ICON[t.key] || `<span class="tool-letter">${t.name[0]}</span>`}</span>`
+    (t) => `<a class="tool t-${t.key}" ${t.url ? `href="${t.url}" target="_blank" rel="noopener noreferrer"` : ""} data-tip="${t.name}" aria-label="${t.name}" draggable="false">${TOOL_ICON[t.key] || `<span class="tool-letter">${t.name[0]}</span>`}</a>`
   ).join("");
 
   /* ---------- desktop folders ---------- */
@@ -210,8 +210,10 @@
     const el = document.createElement("button");
     el.className = "widget folder";
     el.dataset.open = f.id;
-    // two columns, filled top→bottom from the right edge (like a Mac desktop)
-    const col = Math.floor(i / 3), row = i % 3;
+    el.dataset.hint = "폴더를 누르면 세부 업무를 알 수 있어요.";
+    el.setAttribute("aria-label", `${f.name} — 폴더를 누르면 세부 업무를 알 수 있어요.`);
+    // two columns, numbered left→right then top→bottom (01 02 / 03 04 / 05 06)
+    const row = Math.floor(i / 2), col = 1 - (i % 2);
     el.style.top = `calc(64px + ${row} * min(108px, 13vh))`;
     el.style.right = `calc(2.5% + ${col * 96}px)`;
     el.innerHTML = `<img class="folder-icon" src="assets/folder.png" alt="" draggable="false"><span class="folder-name">${f.name}</span>`;
@@ -326,6 +328,33 @@
   $$("#songGrid img").forEach(guardImage);
   observeGroup($$(".song"), 80);
 
+  /* ---------- AI MAP ---------- */
+  const mapItems = (arr) => arr.map((x, i) => `<li><b>${String(i + 1).padStart(2, "0")}</b><div><p class="am-t">${x.t}</p><p class="am-d">${x.d}</p></div></li>`).join("");
+  if (AI_MAP) {
+    $("#aimapAi").innerHTML = mapItems(AI_MAP.ai);
+    $("#aimapHuman").innerHTML = mapItems(AI_MAP.human);
+    if (AI_MAP.aiRole) $("#aimapAiRole").textContent = AI_MAP.aiRole;
+    if (AI_MAP.humanRole) $("#aimapHumanRole").textContent = AI_MAP.humanRole;
+  }
+
+  /* ---------- anchors into the sticky folder stack ---------- */
+  // A sticky folder's on-screen spot depends on the scroll position, so a plain #songs jump
+  // from further down lands on the last folder (AI MAP). Scroll to each folder's real place instead.
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest('a[href^="#"]');
+    if (!a || e.defaultPrevented) return;
+    const target = document.getElementById(a.getAttribute("href").slice(1));
+    if (!target || !target.classList.contains("pillar")) return;
+    if (getComputedStyle(target).position !== "sticky") return; // mobile: normal flow, default jump is fine
+    e.preventDefault();
+    const stack = target.parentElement;
+    let y = stack.getBoundingClientRect().top + scrollY + parseFloat(getComputedStyle(stack).paddingTop || 0);
+    for (const p of stack.children) { if (p === target) break; y += p.offsetHeight; }
+    y -= parseFloat(getComputedStyle(target).top) || 0;
+    window.scrollTo({ top: Math.max(0, y), behavior: reduceMotion ? "auto" : "smooth" });
+    history.replaceState(null, "", a.getAttribute("href"));
+  });
+
   /* ---------- about: the future ---------- */
   $("#futureBtn").addEventListener("click", (e) => {
     const open = $("#futureBody").classList.toggle("open");
@@ -339,20 +368,22 @@
   function renderFolder(f) {
     const list = (arr) => `<ul class="wb-list">${arr.map((x) => `<li>${x}</li>`).join("")}</ul>`;
     const tags = (arr) => `<div class="wb-tags">${arr.map((x) => `<span class="wb-tag">${x}</span>`).join("")}</div>`;
-    const flow = f.flow.map((s, i) => `<span class="wb-step"><b>${String(i + 1).padStart(2, "0")}</b>${s}</span>`).join('<span class="wb-arrow">→</span>');
+    const flow = `<ol class="wb-steps">${f.flow.map((s, i) => `<li><b>${String(i + 1).padStart(2, "0")}</b><span>${s}</span></li>`).join("")}</ol>`;
+    const outputs = (arr) => `<ul class="wb-list wb-out">${arr.map((o) => typeof o === "string" ? `<li>${o}</li>`
+      : `<li><b>${o.t}</b>${o.d ? `<span>${o.d}</span>` : ""}</li>`).join("")}</ul>`;
+    const good = (g) => Array.isArray(g) ? `<ul class="wb-good-list">${g.map((x) => `<li>${x}</li>`).join("")}</ul>` : `<p>${g}</p>`;
     return `
       <p class="wb-path">업무 / ${f.name}</p>
       <p class="wb-summary">${f.summary}</p>
       ${f.image ? `<div class="wb-img"><img src="${f.image}" alt="" data-fallback="cover"></div>` : ""}
       <div class="wb-grid">
-        <div class="wb-sec full"><p class="wb-k">왜 하는가</p><p class="wb-p">${f.why}</p></div>
-        <div class="wb-sec full"><p class="wb-k">진행 흐름</p><div class="wb-flow">${flow}</div></div>
-        <div class="wb-sec"><p class="wb-k">결과물</p>${list(f.output)}</div>
+        <div class="wb-sec full"><p class="wb-k">왜 하나요?</p><p class="wb-p">${f.why}</p></div>
+        <div class="wb-sec full"><p class="wb-k">진행 흐름</p>${flow}</div>
+        <div class="wb-sec"><p class="wb-k">결과물</p>${outputs(f.output)}</div>
         <div class="wb-sec"><p class="wb-k">함께하는 사람</p>${list(f.people)}</div>
-        ${f.good ? `<div class="wb-sec full"><p class="wb-k">잘했다는 기준</p><p class="wb-good">${f.good}</p></div>` : ""}
+        ${f.good ? `<div class="wb-sec full"><p class="wb-k">이걸 보면 잘한 거예요</p><div class="wb-good">${good(f.good)}</div></div>` : ""}
         <div class="wb-sec full"><p class="wb-k">쓰는 도구</p>${tags(f.tools)}</div>
-      </div>
-      <p class="wb-draft">초안이에요. 계속 다듬고 있어요.</p>`;
+      </div>`;
   }
 
   function openFolder(id, origin) {
