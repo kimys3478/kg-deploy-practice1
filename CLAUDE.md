@@ -23,6 +23,19 @@
 - 업로드(로컬 확인용): 위 명령에 `--local --persist-to "$env:TEMP\wrangler-portfolio-state"` 추가. 로컬 R2는 운영과 별개라 따로 넣어야 소리가 난다.
 - 음원 원본은 저장소에 넣지 않는다(`week2` 폴더 등 바깥에 둔다).
 
+### D1 노래 카드 하트
+
+- 데이터베이스 `portfolio-likes` (바인딩 `LIKES`), 표 구조 `src/schema.sql`. 새 환경에 적용: `npx wrangler d1 execute portfolio-likes --remote --file src/schema.sql`
+- API(`src/worker.js`): `GET /api/likes` → `{영상ID: 수}`, `POST /api/likes/<영상ID>` 본문 `{"delta": 1|-1}` → `{count}`. 0 아래로 안 내려간다.
+- 프런트(`script.js`): 숫자는 서버 값, 내가 누른 곡은 `localStorage.likedSongs`. API가 404면(`Vercel`) `#songGrid.no-likes`로 하트를 숨긴다.
+- 로컬 확인 전 로컬 D1에도 표를 만들어야 한다: 위 명령에 `--local --persist-to "$env:TEMP\wrangler-portfolio-state"`.
+- 하트 수 보기: `npx wrangler d1 execute portfolio-likes --remote --command "SELECT * FROM likes"`
+
+### Web Analytics
+
+- `index.html` 맨 아래의 Cloudflare Web Analytics 스니펫(beacon.min.js). 대시보드 → Web Analytics → 사이트 `portfolio.kimys3478.workers.dev`에서 본다.
+- 토큰은 공개용 식별자라 HTML에 그대로 둬도 된다. 같은 HTML이 Vercel에도 올라가므로 Vercel 방문도 함께 집계된다(호스트명으로 구분).
+
 주의: 로컬 확인 때 `--persist-to`로 상태 폴더를 프로젝트 밖에 둔다. `assets.directory`가 `.`이라 `wrangler dev`가 프로젝트 안의 `.wrangler/state` 변경까지 감지해 끝없이 재시작한다(2026-10-10 확인: 332회 재시작, 응답 없음).
 
 원칙: Workers 관련 작업 전에는 developers.cloudflare.com 최신 문서를 확인한다.

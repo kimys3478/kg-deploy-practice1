@@ -374,16 +374,67 @@
   $$("#marquee .p-card").slice(PEOPLE.length).forEach((c) => c.setAttribute("aria-hidden", "true"));
 
   /* ---------- songs grid ---------- */
+  // 카드의 썸네일·제목은 YouTube 링크, 아래 줄의 하트는 따로 눌린다(링크 밖).
   const ipClass = { "코코비": "ip-cocobi", "베베바나": "ip-bebebana", "도라큐라": "ip-doracula" };
+  const songId = (s) => (s.link.match(/[?&]v=([\w-]{6,})/) || [])[1] || s.title.replace(/\s+/g, "-");
+  const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-9.3-9.1C1.3 7.9 3.5 4.5 7 4.5c2 0 3.4 1.1 5 3 1.6-1.9 3-3 5-3 3.5 0 5.7 3.4 4.3 6.9-1.8 4.5-9.3 9.1-9.3 9.1z"/></svg>';
   $("#songGrid").innerHTML = SONGS.map((s) => `
-    <a class="song" href="${s.link}" target="_blank" rel="noopener noreferrer">
-      <div class="song-cover"><img src="${s.cover}" alt="${s.title} 썸네일" loading="lazy" data-fallback="cover">
-        <span class="song-play${isYouTube(s.link) ? " is-youtube" : ""}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z"/></svg></span></div>
-      <div class="song-meta"><p class="song-title">${s.title}</p>${s.year ? `<span class="song-year">${s.year}</span>` : ""}</div>
-      <span class="ip-chip ${ipClass[s.ip] || ""}">${s.ip}</span>
-    </a>`).join("");
+    <article class="song">
+      <a class="song-link" href="${s.link}" target="_blank" rel="noopener noreferrer">
+        <div class="song-cover"><img src="${s.cover}" alt="${s.title} 썸네일" loading="lazy" data-fallback="cover">
+          <span class="song-play${isYouTube(s.link) ? " is-youtube" : ""}" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 4.5v15L19.5 12z"/></svg></span></div>
+        <div class="song-meta"><p class="song-title">${s.title}</p>${s.year ? `<span class="song-year">${s.year}</span>` : ""}</div>
+      </a>
+      <div class="song-foot">
+        <span class="ip-chip ${ipClass[s.ip] || ""}">${s.ip}</span>
+        <button class="heart" type="button" data-id="${songId(s)}" data-n="0" aria-pressed="false" aria-label="${s.title} 하트">${HEART}<span class="heart-n">0</span></button>
+      </div>
+    </article>`).join("");
   $$("#songGrid img").forEach(guardImage);
   observeGroup($$(".song"), 80);
+
+  /* ---------- hearts: 숫자는 D1(/api/likes)에 모두 공유, 내가 누른 곡은 이 브라우저가 기억 ---------- */
+  const LIKED_KEY = "likedSongs";
+  let liked = new Set();
+  try { liked = new Set(JSON.parse(localStorage.getItem(LIKED_KEY) || "[]")); } catch {}
+  const saveLiked = () => { try { localStorage.setItem(LIKED_KEY, JSON.stringify([...liked])); } catch {} };
+  const fmtN = (n) => (n >= 1000 ? `${(n / 1000).toFixed(1).replace(/\.0$/, "")}k` : String(n));
+  const setCount = (b, n) => { b.dataset.n = n; b.querySelector(".heart-n").textContent = fmtN(n); };
+  const hearts = $$("#songGrid .heart");
+  hearts.forEach((b) => b.setAttribute("aria-pressed", String(liked.has(b.dataset.id))));
+
+  fetch("/api/likes", { cache: "no-store" })
+    .then((r) => (r.ok ? r.json() : Promise.reject()))
+    .then((counts) => hearts.forEach((b) => setCount(b, counts[b.dataset.id] || 0)))
+    .catch(() => $("#songGrid").classList.add("no-likes")); // API가 없는 곳(Vercel 등)에선 하트를 숨긴다
+
+  $("#songGrid").addEventListener("click", async (e) => {
+    const b = e.target.closest(".heart");
+    if (!b || b.disabled) return;
+    const id = b.dataset.id, was = b.getAttribute("aria-pressed") === "true", prev = Number(b.dataset.n);
+    const delta = was ? -1 : 1;
+    // 먼저 화면을 바꾸고(바로 반응), 서버가 실패하면 되돌린다
+    b.setAttribute("aria-pressed", String(!was));
+    setCount(b, Math.max(0, prev + delta));
+    if (!was) { b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop"); }
+    was ? liked.delete(id) : liked.add(id);
+    saveLiked();
+    b.disabled = true;
+    try {
+      const r = await fetch(`/api/likes/${encodeURIComponent(id)}`, {
+        method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ delta }),
+      });
+      if (!r.ok) throw new Error(r.status);
+      setCount(b, (await r.json()).count);
+    } catch {
+      b.setAttribute("aria-pressed", String(was));
+      setCount(b, prev);
+      was ? liked.add(id) : liked.delete(id);
+      saveLiked();
+    } finally {
+      b.disabled = false;
+    }
+  });
 
   /* ---------- AI MAP ---------- */
   const mapItems = (arr) => arr.map((x, i) => `<li><b>${String(i + 1).padStart(2, "0")}</b><div><p class="am-t">${x.t}</p><p class="am-d">${x.d}</p></div></li>`).join("");

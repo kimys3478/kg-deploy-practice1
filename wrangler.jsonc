@@ -10,13 +10,21 @@
     "directory": ".",
     "binding": "ASSETS",
     // 이 경로만 Worker(src/worker.js)가 먼저 받는다. 나머지는 정적 파일 그대로.
-    "run_worker_first": ["/preview/*"]
+    "run_worker_first": ["/preview/*", "/api/*"]
   },
   "r2_buckets": [
     {
       // 노래 미리듣기 음원(30초 mp3). 업로드: npx wrangler r2 object put portfolio-songs/<파일명> --file <경로>
       "binding": "SONGS",
       "bucket_name": "portfolio-songs"
+    }
+  ],
+  "d1_databases": [
+    {
+      // 노래 카드 하트 수. 표 구조는 src/schema.sql
+      "binding": "LIKES",
+      "database_name": "portfolio-likes",
+      "database_id": "bbcaf3c8-9a7f-4891-a679-b172d36b96e0"
     }
   ]
 }
