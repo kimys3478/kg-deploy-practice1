@@ -1,0 +1,11 @@
+# Vercel은 저장소 전체를 그대로 공개한다. 사이트에 필요 없는 Cloudflare 쪽 파일은 올리지 않는다.
+# (Cloudflare 쪽의 같은 역할 파일은 .assetsignore)
+src
+wrangler.jsonc
+package.json
+package-lock.json
+.assetsignore
+CLAUDE.md
+README.md
+tools
+dist

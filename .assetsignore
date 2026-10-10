@@ -6,6 +6,7 @@ package-lock.json
 wrangler.jsonc
 .gitignore
 .assetsignore
+.vercelignore
 CLAUDE.md
 AGENTS.md
 README.md
