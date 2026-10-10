@@ -192,11 +192,23 @@
     if (useAudio) elapsed = audio.currentTime;
     else elapsed += (t - lastT) / 1000;
     lastT = t;
-    if (elapsed >= PREVIEW) { loadSong(songIdx + 1); return; } // loadSong → play 가 루프를 다시 건다
+    if (elapsed >= PREVIEW) { finish(); return; }
     drawProgress();
     raf = requestAnimationFrame(loop);
   }
-  audio.addEventListener("ended", () => { if (playing) loadSong(songIdx + 1); });
+  function finish() {
+    // 30초가 끝나면: 곡이 여럿이면 다음 곡으로(loadSong → play 가 루프를 다시 건다), 한 곡뿐이면 멈추고 처음으로
+    if (PLAYER_SONGS.length > 1) { loadSong(songIdx + 1); return; }
+    playing = false;
+    cancelAnimationFrame(raf);
+    audio.pause();
+    try { audio.currentTime = 0; } catch {}
+    elapsed = 0;
+    drawProgress();
+    player.classList.remove("playing");
+    $("#playerPlay").setAttribute("aria-label", "재생");
+  }
+  audio.addEventListener("ended", () => { if (playing) finish(); });
   audio.addEventListener("error", () => { useAudio = false; lastT = performance.now(); player.classList.remove("has-audio"); });
   $("#playerPlay").addEventListener("click", () => {
     playing = !playing;
@@ -205,6 +217,7 @@
     if (playing) play();
     else { audio.pause(); cancelAnimationFrame(raf); }
   });
+  // 곡이 하나뿐이면 이전/다음은 같은 곡을 처음부터 다시 튼다
   $("#playerNext").addEventListener("click", () => loadSong(songIdx + 1));
   $("#playerPrev").addEventListener("click", () => loadSong(songIdx - 1));
   loadSong(0);

@@ -48,11 +48,10 @@ window.SONGS = [
   { title: "나는 아기 의사",           ip: "베베바나", year: "", ...yt("RvyqcGo5jfQ") },
 ];
 
-// 첫 화면 노래 듣기 위젯: 헬로 코코비(스포티파이)부터, 다음 곡은 아카이브 노래들
-// preview: R2 버킷(portfolio-songs)에 올린 30초 음원 파일명. 있는 곡만 ▶를 누르면 진짜 소리가 나요.
+// 첫 화면 노래 듣기 위젯: 헬로 코코비 한 곡만. (이전/다음을 눌러도 같은 곡이 처음부터, 30초가 끝나면 멈춰요)
+// preview: R2 버킷(portfolio-songs)에 올린 30초 음원 파일명. 곡을 더 넣으려면 아래에 항목을 추가하면 돼요.
 window.PLAYER_SONGS = [
   { title: "헬로 코코비", ip: "코코비", cover: "assets/cover-hello-cocobi.webp", link: "https://open.spotify.com/track/2twn7E9Pa7rElQI4Q8pqmF", preview: "hello-cocobi-en-30s.mp3" },
-  ...window.SONGS,
 ];
 
 // 내가 쓰는 도구 (아이콘은 CSS로 그려요, 누르면 각 서비스 사이트가 새 탭으로 열려요)
