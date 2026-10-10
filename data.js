@@ -36,6 +36,14 @@ window.LYRIC_SONGS = [
   },
 ];
 
+// 첫 화면 사진 위젯을 누르면 뜨는 인사 말풍선. 누를 때마다 다음 언어로 바뀌어요.
+window.GREETINGS = [
+  { lang: "KR", text: "안녕하세요, 윤선이에요 👋" },
+  { lang: "EN", text: "Hi, I’m Yoonsun 👋" },
+  { lang: "JA", text: "こんにちは、ユンソンです 👋" },
+  { lang: "PT", text: "Oi, eu sou a Yoonsun 👋" },
+];
+
 // 내가 기획한 노래들 (썸네일 = assets/cover-XX.jpg)
 // 노래 아카이브 (썸네일 = assets/yt-영상ID.jpg, 유튜브 썸네일을 받아 둔 파일)
 const yt = (id) => ({ cover: `assets/yt-${id}.jpg`, link: `https://www.youtube.com/watch?v=${id}` });

@@ -244,6 +244,30 @@ img.missing { visibility: hidden; }
   box-shadow: 0 8px 32px rgba(0, 0, 0, .12);
 }
 .w-photo { border-radius: 16px; }
+/* 인사 말풍선: 사진 아래쪽(옷 부분)에 떠서 얼굴(오른쪽 위)을 가리킨다. 위젯 밖으로 안 나가니 다른 요소와 안 겹친다 */
+.w-photo { cursor: pointer; }
+.w-photo:hover img { filter: brightness(1.03); }
+.hello {
+  position: absolute; left: 8px; right: 8px; bottom: 10px;
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 7px 9px 7px 10px; border-radius: 12px;
+  background: rgba(255, 255, 255, .94);
+  border: 1px solid rgba(255, 255, 255, .8);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .14);
+  font-size: 12px; font-weight: 600; line-height: 1.3; color: var(--ink);
+  opacity: 0; transform: translateY(6px) scale(.92); transform-origin: 78% 0;
+  transition: opacity .22s ease, transform .3s var(--ease-out);
+  pointer-events: none;
+}
+.hello::before { /* 꼬리: 얼굴 쪽(오른쪽 위)을 향한다 */
+  content: ""; position: absolute; right: 24px; top: -12px;
+  border: 6px solid transparent; border-bottom-color: rgba(255, 255, 255, .94);
+}
+.hello.on { opacity: 1; transform: none; }
+.hello-text { min-width: 0; }
+.hello-text.swap { animation: hello-swap .35s ease both; }
+@keyframes hello-swap { from { opacity: 0; transform: translateY(4px); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
+.hello-lang { margin-left: auto; flex: none; font-size: 9px; font-weight: 700; letter-spacing: .04em; color: var(--ink-40); }
 
 /* folders */
 .folders { position: absolute; inset: 0; pointer-events: none; }

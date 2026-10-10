@@ -449,6 +449,27 @@
     }
   });
 
+  /* ---------- photo widget: greeting bubble, KR → EN → JA → PT ---------- */
+  // 드래그 뒤에 따라오는 click은 위 justDragged 가드가 막아 주므로 여기선 신경 안 써도 된다.
+  const photo = $(".w-photo"), hello = photo && $(".hello", photo);
+  if (hello && Array.isArray(window.GREETINGS) && GREETINGS.length) {
+    const helloText = $(".hello-text", hello), helloLang = $(".hello-lang", hello);
+    let gi = -1, helloTimer;
+    const greet = () => {
+      gi = (gi + 1) % GREETINGS.length;
+      const g = GREETINGS[gi];
+      helloText.textContent = g.text;
+      helloText.lang = HTML_LANG[g.lang] || "";
+      helloLang.textContent = g.lang;
+      helloText.classList.remove("swap"); void helloText.offsetWidth; helloText.classList.add("swap");
+      hello.classList.add("on");
+      clearTimeout(helloTimer);
+      helloTimer = setTimeout(() => hello.classList.remove("on"), 5000); // 5초 뒤 스르륵 사라짐
+    };
+    photo.addEventListener("click", greet);
+    photo.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); greet(); } });
+  }
+
   /* ---------- AI MAP ---------- */
   const mapItems = (arr) => arr.map((x, i) => `<li><b>${String(i + 1).padStart(2, "0")}</b><div><p class="am-t">${x.t}</p><p class="am-d">${x.d}</p></div></li>`).join("");
   if (AI_MAP) {
