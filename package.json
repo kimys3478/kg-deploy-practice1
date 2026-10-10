@@ -1,0 +1,24 @@
+{
+  "name": "kg-deploy-practice1",
+  "version": "1.0.0",
+  "description": "키글(Kigle)에서 동요 음원 기획과 다국어(KR · JA · PT) 번역·더빙을 맡고 있는 김윤선의 업무 소개 페이지예요. 빌드 과정이 없는 정적 사이트(HTML · CSS · JS · 이미지)라서, 이 리포를 그대로 Vercel이나 Cloudflare Pages에 연결하면 배포돼요.",
+  "main": "data.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kimys3478/kg-deploy-practice1.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/kimys3478/kg-deploy-practice1/issues"
+  },
+  "homepage": "https://github.com/kimys3478/kg-deploy-practice1#readme",
+  "devDependencies": {
+    "wrangler": "^4.149.0"
+  }
+}
