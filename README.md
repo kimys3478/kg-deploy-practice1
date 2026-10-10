@@ -19,7 +19,8 @@
 | `.assetsignore` · `.vercelignore` | 각각 Cloudflare · Vercel에 올리지 않을 파일 목록 (설정 파일, Worker 코드, README 등) | 루트에 새 설정 파일을 만들 때 둘 다 |
 | `CLAUDE.md` | 배포·로컬 확인 명령과 주의사항 (Claude Code가 참고) | 배포 방식이 바뀔 때 |
 
-- 프로필 사진은 `assets/profile.jpg`라는 이름으로 넣으면 첫 화면과 The Lab 카드에 나타나요. (아직 없음)
+- 프로필 이미지 `assets/profile.jpg`(800×800, kigle 로고를 가리키는 일러스트)는 첫 화면 사진 위젯과 YOONSUN's LAB 카드에 나와요. 바꾸려면 같은 이름으로 정사각형 이미지를 덮어쓰면 돼요.
+- 링크 미리보기(카카오톡·슬랙 등) 이미지는 `assets/og.jpg`(1200×630)예요. `index.html` 맨 위의 `og:` 메타 태그가 Cloudflare 주소를 가리켜요.
 
 ## 페이지 구성
 
@@ -64,6 +65,7 @@ npm run deploy
 
 | 버전 | 날짜 | 바꾼 내용 |
 | --- | --- | --- |
+| 31 | 2026-10-11 | 프로필 이미지 추가 — `assets/profile.jpg`(800×800, kigle 로고를 가리키는 일러스트)로 첫 화면 사진 위젯·LAB 카드 빈칸 채움. 링크 미리보기용 `assets/og.jpg`(1200×630)와 `og:`·`description` 메타 태그 추가 |
 | 30 | 2026-10-11 | `.vercelignore` 추가 — Vercel 주소에서 `/src/worker.js` 등 서버 코드·설정 파일이 열리던 것 차단. README 배포 안내를 Cloudflare Workers(Wrangler) 기준으로 갱신 |
 | 29 | 2026-10-11 | 첫 화면 플레이어를 헬로 코코비 한 곡으로. 30초가 끝나면 다음 곡 대신 멈추고 0:00으로, 이전/다음은 같은 곡 처음부터 |
 | 28 | 2026-10-10 | Cloudflare Web Analytics 스니펫 추가 (쿠키 없음, Vercel 방문도 같은 통계에 합산) |
