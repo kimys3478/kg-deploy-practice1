@@ -18,19 +18,55 @@
   }
   $$("img[data-fallback]").forEach(guardImage);
 
-  /* ---------- links: mail + ask Claude / ChatGPT ---------- */
+  /* ---------- links: mail + ask Claude ---------- */
   const q = encodeURIComponent(SITE.askPrompt);
-  const askUrl = { claude: `https://claude.ai/new?q=${q}`, chatgpt: `https://chatgpt.com/?q=${q}` };
+  const askUrl = { claude: `https://claude.ai/new?q=${q}` };
   $$("[data-ask]").forEach((a) => (a.href = askUrl[a.dataset.ask]));
-  $$("[data-mail]").forEach((a) => (a.href = `mailto:${SITE.email}`));
   $("#fMail").textContent = SITE.email;
 
-  // calendar widget → book a meeting (booking page if set, otherwise a prefilled email)
-  const bookingHref = SITE.bookingUrl ||
-    `mailto:${SITE.email}?subject=${encodeURIComponent("미팅 요청드려요")}`;
+  // mailto는 PC에 메일 앱이 없으면 아무 반응이 없어서, 누르면 주소를 복사하고
+  // Gmail(새 메일 창) / 메일 앱 중에서 고를 수 있는 안내를 띄워요.
+  const gmailHref = (subject) =>
+    `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(SITE.email)}` +
+    (subject ? `&su=${encodeURIComponent(subject)}` : "");
+  const mailtoHref = (subject) =>
+    `mailto:${SITE.email}` + (subject ? `?subject=${encodeURIComponent(subject)}` : "");
+  const toast = document.createElement("div");
+  toast.className = "mail-toast";
+  toast.setAttribute("role", "status");
+  document.body.appendChild(toast);
+  let toastTimer = 0;
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(text);
+    const ta = Object.assign(document.createElement("textarea"), { value: text });
+    ta.style.cssText = "position:fixed;opacity:0";
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } finally { ta.remove(); }
+    return Promise.resolve();
+  }
+  function openMail(subject) {
+    copyText(SITE.email).catch(() => {});
+    toast.innerHTML = `
+      <p class="mt-msg"><b>${SITE.email}</b><span>주소를 복사했어요</span></p>
+      <div class="mt-actions">
+        <a href="${gmailHref(subject)}" target="_blank" rel="noopener noreferrer">Gmail로 쓰기</a>
+        <a href="${mailtoHref(subject)}">메일 앱으로 열기</a>
+        <button type="button" class="mt-close" aria-label="닫기">×</button>
+      </div>`;
+    toast.classList.add("show");
+    $(".mt-close", toast).addEventListener("click", () => toast.classList.remove("show"));
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 8000);
+  }
+  $$("[data-mail]").forEach((a) => {
+    a.href = mailtoHref();
+    a.addEventListener("click", (e) => { e.preventDefault(); openMail(); });
+  });
+
+  // calendar widget → booking page if set (Google 캘린더 약속 일정 링크), otherwise a meeting-request email
   function openBooking() {
-    if (SITE.bookingUrl) window.open(bookingHref, "_blank", "noopener");
-    else location.href = bookingHref;
+    if (SITE.bookingUrl) window.open(SITE.bookingUrl, "_blank", "noopener");
+    else openMail("미팅 요청드려요");
   }
   $("#calWidget").addEventListener("click", openBooking);
   $("#calWidget").addEventListener("keydown", (e) => {
@@ -381,7 +417,7 @@
         <div class="wb-sec full"><p class="wb-k">진행 흐름</p>${flow}</div>
         <div class="wb-sec"><p class="wb-k">결과물</p>${outputs(f.output)}</div>
         <div class="wb-sec"><p class="wb-k">함께하는 사람</p>${list(f.people)}</div>
-        ${f.good ? `<div class="wb-sec full"><p class="wb-k">이걸 보면 잘한 거예요</p><div class="wb-good">${good(f.good)}</div></div>` : ""}
+        ${f.good ? `<div class="wb-sec full"><p class="wb-k">완성 기준</p><div class="wb-good">${good(f.good)}</div></div>` : ""}
         <div class="wb-sec full"><p class="wb-k">쓰는 도구</p>${tags(f.tools)}</div>
       </div>`;
   }

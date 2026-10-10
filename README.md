@@ -18,13 +18,13 @@
 
 ## 페이지 구성
 
-1. **첫 화면 (데스크톱):** 세계 시계, 미팅 캘린더, 노래 플레이어, 오늘의 언어, 업무 폴더 01~06, 내가 쓰는 도구, 소개 문장과 Claude · ChatGPT에게 묻기 · 메일 버튼
+1. **첫 화면 (데스크톱):** 세계 시계, 미팅 캘린더, 노래 플레이어, 오늘의 언어, 업무 폴더 01~06, 내가 쓰는 도구, 소개 문장과 Claude에게 묻기 · 메일 버튼 (메일은 주소 복사 + Gmail/메일 앱 선택)
 2. **하단 독:** 처음으로 · 업무 · AI MAP · 작업 · 소개 · 연락
 3. **이런 일을 하고 있어요:** 업무 6개
 4. **COLLABORATION:** 함께 일하는 팀과 파트너 (IN-HOUSE · PARTNER)
-5. **겹쳐 쌓이는 폴더:** 노래 아카이브 → The Lab → AI MAP
+5. **겹쳐 쌓이는 폴더:** 노래 아카이브 → YOONSUN's LAB → AI MAP
 6. **about-yoonsun.txt:** THEN · NOW · THE FUTURE
-7. **하단:** 김윤선 · Content Manager, Global Team
+7. **하단:** 김윤선 · Content Manager, Global Team, Kigle
 
 ## 로컬에서 보기
 
@@ -43,6 +43,7 @@ python -m http.server 8765
 
 | 버전 | 날짜 | 바꾼 내용 |
 | --- | --- | --- |
+| 22 | 2026-10-10 | ChatGPT에게 묻기 삭제, 메일·미팅 잡기를 주소 복사 + Gmail/메일 앱 선택으로 변경, The Lab → YOONSUN's LAB, 노래 아카이브 문구, 폴더 창 "완성 기준", THEN에 방송 작가 이력 추가, 하단 직함에 Kigle 추가, 모바일 폴더 안내 |
 | 21 | 2026-10-09 | 업무 폴더 상세 창의 "초안이에요" 안내 문구 삭제 |
 | 20 | 2026-10-09 | 하단 직함 → Content Manager, Global Team |
 | 19 | 2026-10-09 | AI MAP 문구 수정, 하단 "노래 아카이브" 링크가 AI MAP으로 가던 문제 수정, Claude · ChatGPT에게 묻기 · 메일 · 도구 아이콘 링크 연결 |

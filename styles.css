@@ -975,3 +975,37 @@ a.tool { cursor: pointer; }
 
 /* small count beside a section title, e.g. 노래 아카이브 (총 120곡) */
 .sec-count { margin-left: 6px; font-size: .55em; font-weight: 600; letter-spacing: 0; color: var(--ink-40); vertical-align: middle; }
+
+/* mail toast: 메일 주소 복사 + Gmail / 메일 앱 선택 */
+.mail-toast {
+  position: fixed; left: 50%; bottom: 124px; z-index: 300;
+  transform: translate(-50%, 12px);
+  width: max-content; max-width: calc(100vw - 32px);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  padding: 12px 14px 12px 18px; border-radius: 14px;
+  background: rgba(24, 24, 24, .92); color: #fff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, .25);
+  -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+  font-size: 13px; line-height: 1.4;
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s, transform .2s;
+}
+.mail-toast.show { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+.mt-msg { display: flex; flex-direction: column; gap: 1px; }
+.mt-msg b { font-weight: 700; }
+.mt-msg span { font-size: 12px; color: rgba(255, 255, 255, .65); }
+.mt-actions { display: flex; align-items: center; gap: 6px; }
+.mt-actions a {
+  padding: 6px 10px; border-radius: 8px;
+  background: rgba(255, 255, 255, .14); color: #fff;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+}
+.mt-actions a:hover { background: rgba(255, 255, 255, .24); }
+.mt-close { width: 26px; height: 26px; border-radius: 50%; color: rgba(255, 255, 255, .7); font-size: 18px; line-height: 1; }
+.mt-close:hover { background: rgba(255, 255, 255, .14); color: #fff; }
+
+/* 모바일에서만 보이는 폴더 안내 */
+.folders-hint { display: none; }
+@media (max-width: 767px) {
+  .folders-hint { display: block; grid-column: 1 / -1; margin: 4px 2px 0; font-size: 12px; font-weight: 600; color: var(--ink-50); }
+}
