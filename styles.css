@@ -452,7 +452,8 @@ a.tool { cursor: pointer; }
 .achievements { padding: 80px 24px; }
 .achievements .sec-title { margin-bottom: 32px; }
 .ach-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 40px 20px; }
-.ach-item { cursor: default; }
+.ach-item { cursor: pointer; border-radius: 12px; }
+.ach-item:focus-visible { outline: 2px solid var(--blue); outline-offset: 6px; }
 .ach-item { transition-property: opacity, transform; }
 .ach-item:hover { transform: translateY(-2px); }
 .ach-tile {

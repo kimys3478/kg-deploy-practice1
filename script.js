@@ -18,9 +18,9 @@
   }
   $$("img[data-fallback]").forEach(guardImage);
 
-  /* ---------- links: mail + ask Claude ---------- */
+  /* ---------- links: mail + ask Claude / ChatGPT ---------- */
   const q = encodeURIComponent(SITE.askPrompt);
-  const askUrl = { claude: `https://claude.ai/new?q=${q}` };
+  const askUrl = { claude: `https://claude.ai/new?q=${q}`, chatgpt: `https://chatgpt.com/?q=${q}` };
   $$("[data-ask]").forEach((a) => (a.href = askUrl[a.dataset.ask]));
   $("#fMail").textContent = SITE.email;
 
@@ -465,6 +465,11 @@
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-open]");
     if (t) { e.preventDefault(); openFolder(t.dataset.open, t); }
+  });
+  // 카드처럼 버튼이 아닌 [data-open] 요소도 키보드(Enter·Space)로 열 수 있게
+  document.addEventListener("keydown", (e) => {
+    const t = e.target.closest && e.target.closest('[data-open][role="button"]');
+    if (t && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); openFolder(t.dataset.open, t); }
   });
   $("#winClose").addEventListener("click", closeFolder);
   layer.addEventListener("click", (e) => { if (e.target === layer) closeFolder(); });
