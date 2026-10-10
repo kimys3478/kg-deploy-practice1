@@ -1,11 +1,22 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "portfolio",
+  "main": "src/worker.js",
   "compatibility_date": "2026-10-06",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "."
-  }
+    "directory": ".",
+    "binding": "ASSETS",
+    // 이 경로만 Worker(src/worker.js)가 먼저 받는다. 나머지는 정적 파일 그대로.
+    "run_worker_first": ["/preview/*"]
+  },
+  "r2_buckets": [
+    {
+      // 노래 미리듣기 음원(30초 mp3). 업로드: npx wrangler r2 object put portfolio-songs/<파일명> --file <경로>
+      "binding": "SONGS",
+      "bucket_name": "portfolio-songs"
+    }
+  ]
 }

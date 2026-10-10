@@ -49,8 +49,9 @@ window.SONGS = [
 ];
 
 // 첫 화면 노래 듣기 위젯: 헬로 코코비(스포티파이)부터, 다음 곡은 아카이브 노래들
+// preview: R2 버킷(portfolio-songs)에 올린 30초 음원 파일명. 있는 곡만 ▶를 누르면 진짜 소리가 나요.
 window.PLAYER_SONGS = [
-  { title: "헬로 코코비", ip: "코코비", cover: "assets/cover-hello-cocobi.webp", link: "https://open.spotify.com/track/2twn7E9Pa7rElQI4Q8pqmF" },
+  { title: "헬로 코코비", ip: "코코비", cover: "assets/cover-hello-cocobi.webp", link: "https://open.spotify.com/track/2twn7E9Pa7rElQI4Q8pqmF", preview: "hello-cocobi-en-30s.mp3" },
   ...window.SONGS,
 ];
 

@@ -143,9 +143,13 @@
   setInterval(tick, 1000);
 
   /* ---------- music player (30s preview, links to Spotify) ---------- */
+  // preview(음원 파일명)가 있는 곡은 /preview/파일명 (Worker → R2)에서 진짜로 재생하고,
+  // 없는 곡은 예전처럼 30초 타이머만 흐른다. 음원을 못 가져와도 타이머로 이어 간다.
   const player = $(".w-player");
   const PREVIEW = 30;
-  let songIdx = 0, elapsed = 0, playing = false, lastT = 0;
+  const audio = new Audio();
+  audio.preload = "none";
+  let songIdx = 0, elapsed = 0, playing = false, lastT = 0, useAudio = false, raf = 0;
 
   function loadSong(i) {
     songIdx = (i + PLAYER_SONGS.length) % PLAYER_SONGS.length;
@@ -156,33 +160,50 @@
     img.src = s.cover;
     guardImage(img);
     $("#playerTitle").textContent = s.title;
-    $("#playerSub").textContent = `${s.ip} · 키글`;
+    $("#playerSub").textContent = `${s.ip} · 키글${s.preview ? " · 30초 미리듣기" : ""}`;
     ["#playerCover", "#playerTitle", "#playerSpotify"].forEach((id) => ($(id).href = s.link));
     const yt = isYouTube(s.link);
     $("#playerSpotify").textContent = yt ? "YouTube에서 보기 ↗" : "Spotify에서 듣기 ↗";
     $("#playerSpotify").classList.toggle("is-youtube", yt);
+    audio.pause();
+    useAudio = !!s.preview;
+    if (useAudio) audio.src = `/preview/${encodeURIComponent(s.preview)}`;
+    else { audio.removeAttribute("src"); audio.load(); }
+    player.classList.toggle("has-audio", useAudio);
     elapsed = 0;
     drawProgress();
+    if (playing) play(); // 재생 중에 곡을 넘기면 다음 곡도 바로 이어서
   }
   function drawProgress() {
-    $("#playerFill").style.width = `${(elapsed / PREVIEW) * 100}%`;
+    const e = Math.min(elapsed, PREVIEW);
+    $("#playerFill").style.width = `${(e / PREVIEW) * 100}%`;
     const fmt = (t) => `${Math.floor(t / 60)}:${String(Math.floor(t % 60)).padStart(2, "0")}`;
-    $("#playerCur").textContent = fmt(elapsed);
-    $("#playerLeft").textContent = `-${fmt(PREVIEW - elapsed)}`;
+    $("#playerCur").textContent = fmt(e);
+    $("#playerLeft").textContent = `-${fmt(PREVIEW - e)}`;
+  }
+  function play() {
+    lastT = performance.now();
+    if (useAudio) audio.play().catch(() => {}); // 자동재생 차단 등은 조용히 넘기고 타이머가 돈다
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(loop);
   }
   function loop(t) {
     if (!playing) return;
-    elapsed += (t - lastT) / 1000;
+    if (useAudio) elapsed = audio.currentTime;
+    else elapsed += (t - lastT) / 1000;
     lastT = t;
-    if (elapsed >= PREVIEW) { loadSong(songIdx + 1); }
+    if (elapsed >= PREVIEW) { loadSong(songIdx + 1); return; } // loadSong → play 가 루프를 다시 건다
     drawProgress();
-    requestAnimationFrame(loop);
+    raf = requestAnimationFrame(loop);
   }
+  audio.addEventListener("ended", () => { if (playing) loadSong(songIdx + 1); });
+  audio.addEventListener("error", () => { useAudio = false; lastT = performance.now(); player.classList.remove("has-audio"); });
   $("#playerPlay").addEventListener("click", () => {
     playing = !playing;
     player.classList.toggle("playing", playing);
     $("#playerPlay").setAttribute("aria-label", playing ? "일시정지" : "재생");
-    if (playing) { lastT = performance.now(); requestAnimationFrame(loop); }
+    if (playing) play();
+    else { audio.pause(); cancelAnimationFrame(raf); }
   });
   $("#playerNext").addEventListener("click", () => loadSong(songIdx + 1));
   $("#playerPrev").addEventListener("click", () => loadSong(songIdx - 1));
