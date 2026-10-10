@@ -916,9 +916,8 @@ a.tool { cursor: pointer; }
   .ach-grid { grid-template-columns: repeat(3, 1fr); }
   .w-tools { right: 24px; bottom: 112px; }
 }
-@media (max-height: 760px) and (min-width: 768px) {
-  .w-photo { display: none; }
-}
+/* 사진 위젯은 낮은 화면(760px 미만)에서도 보여 준다. 첫 화면 글과 겹치면 script.js의 fitHero가
+   글자를 줄이고, 그래도 겹치는 위젯만 collide-hidden으로 숨기므로 따로 숨길 필요가 없다. (v32) */
 
 @media (max-width: 767px) {
   .hero { position: relative; height: auto; overflow: visible; }
